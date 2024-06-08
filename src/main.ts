@@ -2,20 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as fs from 'fs';
 
-async function emptyFolder(folderPath: string) {
-  const files = await fs.promises.readdir(folderPath);
-  for (const file of files) {
-    await fs.promises.unlink(`${folderPath}/${file}`);
-  }
-}
+const PORT = process.env.PORT || 3000
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  const folderPath = './src/assets/uploadedImages';
-  await emptyFolder(folderPath);
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Proyecto Final - By: MSS')
@@ -32,6 +23,6 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  await app.listen(3000);
+  await app.listen(PORT);
 }
 bootstrap();

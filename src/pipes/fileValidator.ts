@@ -4,9 +4,6 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as path from 'path';
 
 @Injectable()
 export class FileValidatorPipe implements PipeTransform {
@@ -18,37 +15,6 @@ export class FileValidatorPipe implements PipeTransform {
     if (!file) {
       throw new BadRequestException('No se ha proporcionado ningún archivo');
     }
-
-    const hash = crypto.createHash('sha256');
-    hash.update(file.buffer);
-    const fileHash = hash.digest('hex');
-
-    const filesInDirectory = fs.readdirSync(this.uploadDirectory);
-    if (filesInDirectory.length > 0) {
-      for (const existingFile of filesInDirectory) {
-        const existingFileContent = fs.readFileSync(
-          `${this.uploadDirectory}/${existingFile}`,
-        );
-        const existingFileHash = crypto
-          .createHash('sha256')
-          .update(existingFileContent)
-          .digest('hex');
-        console.log(existingFileHash);
-
-        if (existingFileHash === fileHash) {
-          throw new BadRequestException(
-            'Esta imagen ya esta siendo ocupada por un producto, por favor intente con otra imagen',
-          );
-        }
-      }
-    }
-
-    const destinationDirectory = this.uploadDirectory;
-
-    const fileName = `${fileHash}${path.extname(file.originalname)}`;
-    const destinationFilePath = path.join(destinationDirectory, fileName);
-
-    fs.writeFileSync(destinationFilePath, file.buffer);
 
     const allowedFileTypes = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
     if (!allowedFileTypes.includes(file.mimetype.split('/')[1])) {
